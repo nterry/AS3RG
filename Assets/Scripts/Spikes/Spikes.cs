@@ -15,12 +15,9 @@ public class Spikes : MonoBehaviour
 {
 	public float damageValue = 1.0f;
 
-	GameObject player;
-
 	void awake()
 	{
-		//Get the player object
-		player = GameObject.FindGameObjectWithTag ("Player");
+		Debug.Log ("Spikes are awake!");
 	}
 
 	/* This will check to see if the player has stepped onto the spikes
@@ -29,9 +26,6 @@ public class Spikes : MonoBehaviour
 	 * */
 	void onTriggerStay(Collider other)
 	{
-		if (other.gameObject == player) 
-		{
-				other.SendMessage("Damage", damageValue, SendMessageOptions.DontRequireReceiver);
-		}
+		other.SendMessage("Damage", damageValue, SendMessageOptions.DontRequireReceiver);
 	}
 }
