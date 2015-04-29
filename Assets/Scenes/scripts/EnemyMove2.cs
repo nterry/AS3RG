@@ -39,7 +39,7 @@ public class EnemyMove2 : MonoBehaviour {
 		}	
 		
 		if(death){
-			GUITextHandler.score += 100;
+			//GUITextHandler.score += 100;
 			Destroy(gameObject);
 		}
 	}
