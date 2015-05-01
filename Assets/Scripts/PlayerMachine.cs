@@ -20,9 +20,12 @@ public class PlayerMachine : SuperStateMachine {
     enum PlayerStates { Idle, Walk, Jump, Fall }
 
     private SuperCharacterController controller;
+	
+	// previous velocity
+	private Vector3 moveDirection;
 
     // current velocity
-    private Vector3 moveDirection;
+    private Vector3 previousMoveDirection;
 
     // current direction our character's art is facing
     public Vector3 lookDirection { get; private set; }
@@ -30,6 +33,8 @@ public class PlayerMachine : SuperStateMachine {
     private PlayerInputController input;
 
 	private Animator animator;
+
+	private bool groundCheckEnabled;
 
 	void Start () {
 	    // Put any code here you want to run ONCE, when the object is initialized
@@ -46,6 +51,8 @@ public class PlayerMachine : SuperStateMachine {
         currentState = PlayerStates.Idle;
 
 		animator = gameObject.GetComponent<Animator> ();
+
+		groundCheckEnabled = true;
 	}
 
     protected override void EarlyGlobalSuperUpdate()
@@ -54,6 +61,8 @@ public class PlayerMachine : SuperStateMachine {
         lookDirection = Quaternion.AngleAxis(input.Current.MouseInput.x, Vector3.up) * lookDirection;
         // Put any code in here you want to run BEFORE the state's update function.
         // This is run regardless of what state you're in
+
+		previousMoveDirection = moveDirection;
     }
 
     protected override void LateGlobalSuperUpdate()
@@ -64,20 +73,35 @@ public class PlayerMachine : SuperStateMachine {
         // Move the player by our velocity every frame
         transform.position += moveDirection * Time.deltaTime;
 
-        // Need to correct the y component of the move vector so the model doesnt rotate forwards and backwards
 		var correctedMoveDirection = new Vector3 (moveDirection.x, 0.0F, moveDirection.z);
 
-		// Rotate our mesh to face where we are "moving"
-		AnimatedMesh.rotation = Quaternion.LookRotation(correctedMoveDirection, Vector3.up);
+        // Need to correct the y component of the move vector so the model doesnt rotate forwards and backwards
+
+		Debug.Log (previousMoveDirection);
+		Debug.Log(moveDirection);
+
+		if ((input.Current.MoveInput.x != 0.0F) || (input.Current.MoveInput.z != 0.0F))
+		{
+			// Rotate our mesh to face where we are "moving"
+			AnimatedMesh.rotation = Quaternion.LookRotation(correctedMoveDirection, Vector3.up);
+		}
 
 		if (currentState.Equals(PlayerStates.Idle)) {
 			animator.SetBool ("IdleState", true);
 			animator.SetBool ("WalkState", false);
+			animator.SetBool ("JumpState", false);
 		}
 		
 		if (currentState.Equals(PlayerStates.Walk)) {
 			animator.SetBool ("IdleState", false);
 			animator.SetBool ("WalkState", true);
+			animator.SetBool ("JumpState", false);
+		}
+
+		if (currentState.Equals(PlayerStates.Jump)) {
+			animator.SetBool ("IdleState", false);
+			animator.SetBool ("WalkState", false);
+			animator.SetBool ("JumpState", true);
 		}
     }
 
@@ -156,7 +180,7 @@ public class PlayerMachine : SuperStateMachine {
 
     private bool AcquiringGround()
     {
-        return IsGroundedAdvanced(0.01f, false);
+        return (IsGroundedAdvanced(0.01f, false) && groundCheckEnabled);
     }
 
     private bool MaintainingGround()
@@ -266,7 +290,7 @@ public class PlayerMachine : SuperStateMachine {
         controller.DisableClamping();
         controller.DisableSlopeLimit();
 
-        moveDirection += Vector3.up * CalculateJumpSpeed(JumpHeight, Gravity);
+		StartCoroutine(DelayJump());
     }
 
     void Jump_SuperUpdate()
@@ -304,4 +328,20 @@ public class PlayerMachine : SuperStateMachine {
 
         moveDirection -= Vector3.up * Gravity * Time.deltaTime;
     }
+
+	private IEnumerator DelayJump() {
+	
+		Debug.Log("Before Waiting 1 seconds");
+		yield return new WaitForSeconds(1);
+		moveDirection += Vector3.up * CalculateJumpSpeed(JumpHeight, Gravity);
+		Debug.Log("After Waiting 1 Seconds");
+	}
+
+	private void DisableGroundCheck() {
+		groundCheckEnabled = false;
+	}
+
+	private void EnableGroundCheck() {
+		groundCheckEnabled = true;
+	}
 }
