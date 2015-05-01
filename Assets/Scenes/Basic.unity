@@ -412,6 +412,30 @@ Prefab:
       propertyPath: JumpHeight
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 11408578, guid: 7d71821ddb00c44969cab0eb409c6b21, type: 2}
+      propertyPath: Gravity
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 11428004, guid: 7d71821ddb00c44969cab0eb409c6b21, type: 2}
+      propertyPath: debugPushbackMesssages
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11428004, guid: 7d71821ddb00c44969cab0eb409c6b21, type: 2}
+      propertyPath: spheres.Array.data[1].Offset
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 11428004, guid: 7d71821ddb00c44969cab0eb409c6b21, type: 2}
+      propertyPath: spheres.Array.data[2].Offset
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 11408578, guid: 7d71821ddb00c44969cab0eb409c6b21, type: 2}
+      propertyPath: RunSpeed
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 11408578, guid: 7d71821ddb00c44969cab0eb409c6b21, type: 2}
+      propertyPath: RunAcceleration
+      value: 3.40282347e+38
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 7d71821ddb00c44969cab0eb409c6b21, type: 2}
   m_IsPrefabParent: 0
