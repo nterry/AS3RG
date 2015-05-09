@@ -57,6 +57,11 @@ public class PlayerMachine : SuperStateMachine {
 		groundCheckEnabled = true;
 	}
 
+    void Update()
+    {
+        //animator.speed = input.Current.MoveInput.magnitude;
+    }
+
     protected override void EarlyGlobalSuperUpdate()
     {
 		// Rotate out facing direction horizontally based on mouse input
