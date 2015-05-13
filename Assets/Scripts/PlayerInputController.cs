@@ -18,7 +18,7 @@ public class PlayerInputController : MonoBehaviour {
         // Ensuring that we are getting either -1, 0 or 1
         Vector3 moveInput = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
 
-        Vector2 mouseInput = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+        Vector2 mouseInput = new Vector2(Input.GetAxis("Mouse X") * 2.0F, Input.GetAxis("Mouse Y") * 2.0F);
 
         bool jumpInput = Input.GetButtonDown("Jump");
 

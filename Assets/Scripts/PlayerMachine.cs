@@ -22,21 +22,15 @@ public class PlayerMachine : SuperStateMachine {
     enum PlayerStates { Idle, Walk, Run, Jump, Fall }
 
     private SuperCharacterController controller;
-	
-	// previous velocity
-	private Vector3 moveDirection;
 
     // current velocity
-    private Vector3 previousMoveDirection;
-
+    private Vector3 moveDirection;
     // current direction our character's art is facing
     public Vector3 lookDirection { get; private set; }
 
     private PlayerInputController input;
 
 	private Animator animator;
-
-	private bool groundCheckEnabled;
 
 	void Start () {
 	    // Put any code here you want to run ONCE, when the object is initialized
@@ -53,14 +47,7 @@ public class PlayerMachine : SuperStateMachine {
         currentState = PlayerStates.Idle;
 
 		animator = gameObject.GetComponent<Animator> ();
-
-		groundCheckEnabled = true;
 	}
-
-    void Update()
-    {
-        //animator.speed = input.Current.MoveInput.magnitude;
-    }
 
     protected override void EarlyGlobalSuperUpdate()
     {
@@ -68,8 +55,6 @@ public class PlayerMachine : SuperStateMachine {
         lookDirection = Quaternion.AngleAxis(input.Current.MouseInput.x, Vector3.up) * lookDirection;
         // Put any code in here you want to run BEFORE the state's update function.
         // This is run regardless of what state you're in
-
-		previousMoveDirection = moveDirection;
     }
 
     protected override void LateGlobalSuperUpdate()
@@ -82,12 +67,7 @@ public class PlayerMachine : SuperStateMachine {
 
 		var correctedMoveDirection = new Vector3 (moveDirection.x, 0.0F, moveDirection.z);
 
-        // Need to correct the y component of the move vector so the model doesnt rotate forwards and backwards
-
-		Debug.Log (previousMoveDirection);
-		Debug.Log(moveDirection);
-
-		if ((input.Current.MoveInput.x != 0.0F) || (input.Current.MoveInput.z != 0.0F))
+        if ((input.Current.MoveInput.x != 0.0F) || (input.Current.MoveInput.z != 0.0F))
 		{
 			// Rotate our mesh to face where we are "moving"
 			AnimatedMesh.rotation = Quaternion.LookRotation(correctedMoveDirection, Vector3.up);
@@ -187,7 +167,7 @@ public class PlayerMachine : SuperStateMachine {
 
     private bool AcquiringGround()
     {
-        return (IsGroundedAdvanced(0.01f, false) && groundCheckEnabled);
+        return IsGroundedAdvanced(0.01f, false);
     }
 
     private bool MaintainingGround()
@@ -262,35 +242,10 @@ public class PlayerMachine : SuperStateMachine {
         moveDirection = Vector3.MoveTowards(moveDirection, Vector3.zero, 100.0f * Time.deltaTime);
     }
 
-//    void Idle_ExitState()
-//    {
-//        // Run once when we exit the idle state
-//    }
-
-//    void Walk_SuperUpdate()
-//    {
-//        if (input.Current.JumpInput)
-//        {
-//            currentState = PlayerStates.Jump;
-//            return;
-//        }
-//
-//        if (!MaintainingGround())
-//        {
-//            currentState = PlayerStates.Fall;
-//            return;
-//        }
-//
-//        if (input.Current.MoveInput != Vector3.zero)
-//        {
-//            moveDirection = Vector3.MoveTowards(moveDirection.normalized, LocalMovement() * WalkSpeed, WalkAcceleration * Time.deltaTime);
-//        }
-//        else
-//        {
-//            currentState = PlayerStates.Idle;
-//            return;
-//        }
-//    }
+    void Idle_ExitState()
+    {
+        // Run once when we exit the idle state
+    }
 
 	void Run_SuperUpdate()
 	{
@@ -318,55 +273,47 @@ public class PlayerMachine : SuperStateMachine {
 		}
 	}
 
-//    void Jump_EnterState()
-//    {
-//        controller.DisableClamping();
-//        controller.DisableSlopeLimit();
-//
-//		StartCoroutine(DelayJump());
-//    }
-//
-//    void Jump_SuperUpdate()
-//    {
-//        Vector3 planarMoveDirection = Math3d.ProjectVectorOnPlane(Vector3.up, moveDirection);
-//        Vector3 verticalMoveDirection = moveDirection - planarMoveDirection;
-//
-//        if (AcquiringGround())
-//        {
-//            moveDirection = planarMoveDirection;
-//            currentState = PlayerStates.Idle;
-//            return;            
-//        }
-//
-//        planarMoveDirection = Vector3.MoveTowards(planarMoveDirection, LocalMovement() * WalkSpeed, JumpAcceleration * Time.deltaTime);
-//        verticalMoveDirection -= Vector3.up * Gravity * Time.deltaTime;
-//
-//        moveDirection = planarMoveDirection + verticalMoveDirection;
-//    }
+    void Jump_EnterState()
+    {
+        controller.DisableClamping();
+        controller.DisableSlopeLimit();
 
-//    void Fall_EnterState()
-//    {
-//        controller.DisableClamping();
-//        controller.DisableSlopeLimit();
-//    }
-//
-//    void Fall_SuperUpdate()
-//    {
-//        if (AcquiringGround())
-//        {
-//            moveDirection = Math3d.ProjectVectorOnPlane(Vector3.up, moveDirection);
-//            currentState = PlayerStates.Idle;
-//            return;
-//        }
-//
-//        moveDirection -= Vector3.up * Gravity * Time.deltaTime;
-//    }
+        moveDirection += Vector3.up * CalculateJumpSpeed(JumpHeight, Gravity);
+    }
 
-//	private IEnumerator DelayJump() {
-//	
-//		Debug.Log("Before Waiting 1 seconds");
-//		yield return new WaitForSeconds(1);
-//		moveDirection += Vector3.up * CalculateJumpSpeed(JumpHeight, Gravity);
-//		Debug.Log("After Waiting 1 Seconds");
-//	}
+    void Jump_SuperUpdate()
+    {
+        Vector3 planarMoveDirection = Math3d.ProjectVectorOnPlane(Vector3.up, moveDirection);
+        Vector3 verticalMoveDirection = moveDirection - planarMoveDirection;
+
+        if (AcquiringGround())
+        {
+            moveDirection = planarMoveDirection;
+            currentState = PlayerStates.Idle;
+            return;            
+        }
+
+        planarMoveDirection = Vector3.MoveTowards(planarMoveDirection, LocalMovement() * WalkSpeed, JumpAcceleration * Time.deltaTime);
+        verticalMoveDirection -= Vector3.up * Gravity * Time.deltaTime;
+
+        moveDirection = planarMoveDirection + verticalMoveDirection;
+    }
+
+    void Fall_EnterState()
+    {
+        controller.DisableClamping();
+        controller.DisableSlopeLimit();
+    }
+
+    void Fall_SuperUpdate()
+    {
+        if (AcquiringGround())
+        {
+            moveDirection = Math3d.ProjectVectorOnPlane(Vector3.up, moveDirection);
+            currentState = PlayerStates.Idle;
+            return;
+        }
+
+        moveDirection -= Vector3.up * Gravity * Time.deltaTime;
+    }
 }
