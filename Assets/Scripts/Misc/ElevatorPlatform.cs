@@ -12,6 +12,7 @@ public class ElevatorPlatform : MonoBehaviour {
 
     public float topPosition;
     public float waitTime;
+    public int speed;
 
     private float bottomPosition;
     private ElevatorPlatformState state;
@@ -54,7 +55,7 @@ public class ElevatorPlatform : MonoBehaviour {
             case ElevatorPlatformState.MovingDown:
                 if (getCurrentHeight() > bottomPosition)
                 {
-                    transform.Translate(Vector3.back * 2.0F * Time.deltaTime);
+                    transform.Translate(Vector3.back * speed * Time.deltaTime);
                 }
                 else
                 {
@@ -65,7 +66,7 @@ public class ElevatorPlatform : MonoBehaviour {
             case ElevatorPlatformState.MovingUp:
                 if (bottomPosition + getCurrentHeight() < bottomPosition + topPosition)
                 {
-                    transform.Translate(Vector3.forward * 2.0F * Time.deltaTime);
+                    transform.Translate(Vector3.forward * speed * Time.deltaTime);
                 }
                 else
                 {

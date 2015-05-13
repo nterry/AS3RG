@@ -6,10 +6,20 @@ ModelImporter:
   serializedVersion: 18
   fileIDToRecycleName:
     100000: //RootNode
+    100002: lower_platform
+    100004: main
     400000: //RootNode
+    400002: lower_platform
+    400004: main
     2300000: //RootNode
+    2300002: lower_platform
+    2300004: main
     3300000: //RootNode
+    3300002: lower_platform
+    3300004: main
     4300000: Cube
+    4300002: lower_platform
+    4300004: main
   materials:
     importMaterials: 1
     materialName: 0
